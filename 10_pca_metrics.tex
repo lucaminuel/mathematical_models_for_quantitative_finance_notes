@@ -1,0 +1,310 @@
+\chapter{PCA metric and Granger Causality}
+\label{chap:pca_metrics}
+\section{Introducion}
+In previous chapters we introduced the concept of system risk, we characterized it as:
+\begin{itemize}
+	\item Involves the whole financial system;
+	\item Threatens the stability and the well-functioning;  
+	\item Undermine public confidence;
+	\item It is related to contagion
+\end{itemize}
+we understood that linkages play an important role.\\
+Some studies tried:
+\begin{itemize}
+	\item CoVaR: measures Value-at-Risk of financial institutions conditional on the entire set of institutions’ poor performance;
+	\item Systemic Expected Shortfall: measures expected loss to each institution
+	conditional on the entire set of institutions’ poor performance;
+	\item Distressed Insurance Premium (DIP): measures the insurance premium required to cover distressed losses in the banking system
+\end{itemize}
+All these studies had some criticism, in fact: they are based on the magnitude of losses during periods when many institutions are simultaneously distressed. In particular they are related to market volatility: possible underestimation of systemic risk during period of prosperity and growth. They are not good as early warning indicators.\\
+An idea to overcome this problem is trying to explain the variance of the returns in terms of common uncorrelated factor. When returns are driven by few common factors they will move more closely together.\\
+To do this, we define:
+\begin{itemize}
+	\item $R_i$: stock return of institution $i$, $i = 1,\ldots N$;
+	\item $R_S = \sum_i R_i:$ aggregate return of the system;
+	\item $\mu_i = \expected{R_i}$ and $\sigma_i^2 = \text{Var}[R_i]$;
+\end{itemize}
+We can define the total risk of the system as:
+\begin{mydefinition}[Total risk of the system]
+	\[
+	\sigma^2_s = \sum_{i=1}^{N} \sum_{j=1}^{N} \sigma_i \sigma_j \expected{z_iz_j}, \qquad z_k \equiv \frac{(R_k - \mu_k)}{\sigma_k}
+	\]
+\end{mydefinition}
+We find in the uncorrelated factors as the orthogonal eigenvectors of the corelation matrix  the uncorrelated factors that we are looking for. Each eigenvector identifies a portfolio and the corresponding eigenvalue is related to the fraction of total variance explained.\\
+Larger eigenvalues explain more the variation of the system. We can reduce the dimensionality of the problem by focus on the $n$ largest eigenvalues.\\
+We noticed that more returns are correlated and larger the portion of the total volatility captured by the first $n$ components.
+We define:
+\[
+\Omega = \sum_{k=1}^{N} \lambda_k, \quad \omega_n = \sum_{k=1}^{n} \lambda_k, \quad h_n = \frac{\omega_n}{\Omega}
+\]
+and the periods of increased interconnectedness can be characterized by:
+\[
+h_n > \text{ some treshold } H 
+\]
+Now we can introduce $N$ variables $\eta_k$ s.t.:
+\[
+\expected{\eta_k \eta_l} = \lambda_l \delta_{kl}
+\]
+we can express the standardized returns as:
+\[
+z_i = \sum_{i=1}^{N} L_{ik} \eta_k
+\]
+so that:
+\[
+\expected{z_iz_j} = (L\Lambda L^T)_{ij} = \sum_{k=1}^{N} L_{ik} L_{jk} \lambda_k
+\]
+and:
+\[
+\sigma^2_S = \sigma^T L \Lambda L^T \sigma = \sum_{i=1}^{N}\sum_{j=1}^{N}\sum_{k=1}^{N} \sigma_i \sigma_j L_{ik}L_{jk}\lambda_k
+\]
+We can introduce als a measure of exposure of the single institution:
+\[
+PCAS_{i,n} = \frac{1}{2}\frac{\sigma_i^2}{\sigma_S^2} \frac{\partial^2 \sigma^2_S}{\partial \sigma_i^2}\Bigl|_{h_n \geq H} = \sum_{k =1}^{n} \frac{\sigma_i^2}{\sigma^2_S}L^2_{ik}\lambda_k\Bigl|_{h_n \geq H}
+\]
+This gives both he contribution and the exposure of the $i$-th institution to the overall risk of the system given a common component across the returns of all institutions.
+\section{Granger Causality}
+\begin{mydefinition}[Granger Causality (Granger,1969)]
+	Test whether the past information on a time series $y$ is statistically useful in predicting the future of another time series $x$,better than using only the past information on $x$.
+\end{mydefinition}
+In the original paper, the information on past realization of the two time series defines the information set, which is also called the Universe. The information set may include also the information on other variables. Granger causality include different forms:
+\begin{itemize}
+	\item Granger causality in mean (or linear) that is the most widely used.
+	\item Granger causality in variance, useful for systemic risk.
+	\item Granger in causality in tail: how an extreme event in stock A imply an extreme event in stock B
+\end{itemize}
+\subsection{Linear Granger causality}
+\begin{mydefinition}[Linear Granger causality]
+	Given two zero-mean, stationary, time series $R^t_i$ and $R^j_t$, let's assume:
+	\begin{align*}
+		& R^i_{t+1} = \sum_{k=1}^{L} a^i_k R^i_{t-k} + \sum_{k=1}^{L} b_k^{ij}R_{t-k}^j + e^{i}_{t+1}\\
+		& R^j_{t+1} = \sum_{k=1}^{L} a^j_k R^j_{t-k} + \sum_{k=1}^{L} b_k^{ji}R_{t-k}^j + e^{j}_{t+1}
+	\end{align*}
+where $e^i_{t+1}, e^j_{t+1}$ are two uncorrelated white noise process.\\
+\end{mydefinition}
+\begin{mydefinition}
+We say that $j$ Granger-cause $i$ if $b^{ij} \neq 0$ and vice-versa. If both $b^{ij},b^{ji}\neq 0$, there is a feedback relationship.\\
+In notation:
+\[
+(j \to i) = \begin{cases}
+	1 & \text{if }j \text{Granger causes }i\\
+	0 & \text{otherwise}
+\end{cases}
+\]
+\end{mydefinition}
+\begin{mytheorem}[Test for Linear Granger causality]
+	The test is based on the Granger-Sargent statics:
+	\[
+	GS = \frac{(R_2 -R_1)/L}{R_1/(N-2L)}
+	\]
+where $R_1$ is the residual sum of squares from:
+\[
+R_{t+1}^i = \sum_{k=1}^L a^i_kR^i_{t-k} + \sum_{k=1}^L b_k^{ij}R^j_{t-k} + e^i_{t+1}
+\]
+and $R_2$ are the residual sum of squares from:
+\[
+R^i_{t+1} = \sum_{k=1}^{L}a^i_k R^i_{t-k}
+\]
+The statistics GS follows an F-distribution with $L$ and $N-2L$ degrees of freedom
+\end{mytheorem}
+So $x$ Granger causes $y$ is past values of $x$ helps to forecast $y$, given past $y$. This idea can be easily applied in VAR framework;
+\[
+\begin{bmatrix}
+	y_{1,t} \\
+	y_{2,y}
+\end{bmatrix}
+=
+\sum_{i=1}^{p} \begin{bmatrix}
+	\phi_{11,i} & \phi_{12,i}\\
+	\phi_{21,i} & \phi_{22,i}
+\end{bmatrix}
+\begin{bmatrix}
+	y_{1,t-1} \\
+	y_{2,t-1}
+\end{bmatrix}
++ \varepsilon_t
+\]
+Then $y_{2,t}$ not Granger causes $y_{1,t}$ if:
+\[
+\phi_{12,i} = 0 \quad i =1,2,\ldots,p
+\]
+and that happens if:
+\[
+\begin{bmatrix}
+	y_{1,t} \\
+	y_{2,y}
+\end{bmatrix}
+=
+\sum_{i=1}^{p} \begin{bmatrix}
+	\phi_{11,i} & 0\\
+	\phi_{21,i} & \phi_{22,i}
+\end{bmatrix}
+\begin{bmatrix}
+	y_{1,t-1} \\
+	y_{2,t-1}
+\end{bmatrix}
++ \varepsilon_t
+\]
+These are just restrictions on VAR parameters that can be easily tested with standard join F-test.\\
+Denoting $RSS \equiv SS$ of the Restricted model and $USS \equiv$ the SS of the Unrestricted one:
+\[
+F = \frac{(RSS-USS)/p}{USS/(T-2p-1)}
+\]
+Under general condition $pF \to \chi^2_p$.\\
+We can define networks based on Granger Causality:
+\begin{itemize}
+	\item \textbf{Degree of Granger Causality}
+	\[
+	DGC = \frac{1}{N(N-1)} \sum_{i=1}^{N} \sum_{i\neq j} (j \to i)
+	\]
+	systemic risk is high when $DGC \geq K$ for a certain treshold $K$
+	\item \textbf{Number of connections}:
+	\begin{align*}
+		& \text{\# Out: } (j \to S)|_{DGC \geq K} = \frac{1}{N-1} \sum_{i \neq j} (j \to i)|_{DGC \geq K}\\
+		& \text{\# In: } (S\to j)|_{DGC \geq K} = \frac{1}{N-1}\sum_{i\neq j}(i \to j)|_{DGC \geq K}\\
+		& \text{\# In + Out: } (j \leftrightarrow S)|_{DGC \geq K} = \frac{1}{2(N-1)}\sum_{i \neq j} (i \to j) + (j \to i)|_{DFC \geq K} 
+	\end{align*}
+\item \textbf{Sector-conditional connection}:
+\begin{align*}
+    & \text{\# Out-to-Other=} \frac{1}{(M-1)N/M}\sum_{i\neq j}\sum_{\beta \neq \alpha} (j|\alpha) \to (i| \beta)|_{DGC \geq K}\\
+    & \text{\# In-from-Other=} \frac{1}{(M-1)N/M}\sum_{i\neq j}\sum_{\beta \neq \alpha} (i|\beta) \to (j| \alpha)|_{DGC \geq K} \\
+    &     \text{\# In+Out-Other=} \frac{1}{2(M-1)N/M}\sum_{i\neq j}\sum_{\beta \neq \alpha} ((i|\beta) \to (j| \alpha)) + ((j|\alpha) \to (i| \beta))
+\end{align*}
+\item \textbf{Eigenvatore centrality}: It includes the idea: " THe more my conncetions are importnat, the more I am". So the centrality of node $i$, $v_i$, is defined by:
+\[
+v_i = \sum_{t\in \text{connections}_i} v_t = \sum_{j=1}^N A_{i,j}v_j
+\]
+where $A$ is the adjacency matrix:
+\[
+[A]_{ij} = (j \to i)
+\]
+the vector of the centralities is the eigenvector of $A$ that satisfies:
+\[
+Av = v
+\]
+(the one corresponding to eigenvalue 1)
+\item \textbf{Closeness } $j$ is causally $C-$connected to $i$ if there exists a sequence of nodes $k_1,\ldots,k_{C-1}$. $C_{ij} = $length of the shortest $C-$connection:
+\[
+C_{ij} = \min_{C} \{C\in [1,N-1]:  (j \xrightarrow[]{C} i)\}
+\]
+Closeness for institution $j$:
+\[
+C_{jS}|_{DGC \geq K} = \frac{1}{N-1}\sum_{i \neq j} C_{ji}(j \xrightarrow[]{C} i)|_{DGC \geq K}
+\]
+\end{itemize}
+Granger-causality-network can be a toll for identifying dynamic linkages between different parts of the financial system.\\
+Applied it to empirical data, we conclude that:
+\begin{itemize}
+ \item Metrics for connectedness both ”instantaneous” (PCA) and ”lagged” (Granger-causality) are robust and have forecasting power
+ \item It is possible to extract valuable information from ”simple” objects like returns and volatilities. Easier to obtain than e.g. credit relationships
+ \item They are interesting tools to explore the dynamic relationships between different sectors.
+\end{itemize}
+\section{Volatility estimation and Granger-causality in tails}
+Volatilities $\sigma_{it}$ are estimated through a GARCH(1,1) model:
+\begin{align*}
+	& R_{i,t} = \mu_i + \sigma_{i,t} \epsilon_{i,t}, \qquad \epsilon_{i,t} \sim WN(0,1)\\
+	& \sigma^2_{i,t} = \omega_i + \alpha_i (R_{i,t} -\mu_i)^2 + \beta_u \sigma^2_{i,t-1}
+\end{align*}
+where $\mu_i, \alpha_i, \omega_i, \beta_i$ are the parameters of the model.\\
+Due to a market distress, most investors rebalancing of portfolios toward safer type of assets. At the financial turmoil, investors liquidate risky assets + purchase safe ones: flight-to-quality. So identifying and anticipating flight-to-quality is of great importance in the context of early-warning and monitoring of systemic risk.\\
+Fire sales spillovers due to assets’ illiquidity and common portfolio holdings are definitely one of the main drivers of systemic risk. Shared investments create a significant overlap of portfolios between couples of financial institutions. Fire sales move prices due to the finite liquidity of assets and to market impact.\\
+Finally, leverage management amplifies such feedbacks.
+\newpage
+\begin{mysetting}[Simplified model flight-to-quality]
+	\item two assets $a$ and $b$ with $\sigma_a<\sigma_b$ and $\expected{r_a}<\expected{r_b}$
+	\item $\omega =$ percentage of total assets $A$ invested in the safe asset $a$. $1-\omega$ is the percentage invested in the risky asset b.
+	\item Bank is VaR-constrained:
+	\begin{align*}
+		& \max_{A,\omega} \quad A\bm{\mu}'\bm{\omega}\\
+	    & \text{s.t.} \quad \alpha A \sqrt{\bm{\omega}'\bm{\Sigma}\bm{\omega}} \leq E
+	\end{align*}
+\end{mysetting}
+\begin{mytheorem}[Profit-maximizer]
+	A profit-maximizer that allocates the available resources accorging to the early setting, always reacts to quity drops with a flight-to-quality, in formula:
+	\[
+	\frac{d \omega}{dE} <0
+	\]
+\end{mytheorem}
+In literature review we have:
+\begin{itemize}
+	\item Unusual capital flows to proxy flights, both to liquidity and to quality: data on order flow are needed.
+	\item In periods of market distress characterized by a high level of uncertainty, investors require liquidity rather than quality. 
+	\item We define an econometric measure of flight-to-quality based on easily available daily market prices: information on the order flow is now inferred from data.
+	\item This allows us to considerably extend the time span of our analysis
+	\item Identify periods of financial turbulence by abnormal levels of Granger inter-connectedness among equities of hedge funds, banks, broker/dealers, and insurance companies.
+	\item We adopt a bipartite network of equities and bonds: investigate the effect of crises on sovereign debt
+	\item We adopt the Granger-causality test in the tails by Hong et al., 2009: suited to describe events pertaining to a crisis, hence of extraordinary nature.
+\end{itemize}
+Let consider chains of events in which a large negative equity drop of a bank causes a significant variation (positive or negative) of a given sovereign bond yield. For this we use Granger-causality test for tail dependence:
+\begin{itemize}
+	\item $\{Y_{1,t}\}_{t=1}^T$ and $\{Y_{2,t}\}_{t=1}^T$ be two stationary (not integrated) time series.
+	\item Consider the $\alpha-$Value-at-Risk $\{V_{i,t}^{(\alpha)}\}^T_{t=1}$ for each series:
+	\[
+	\text{Prob}[Y_{i,t} \leq - V_{i,t}^{(\alpha)}|\Omega_t] = \alpha, \quad i =1,2
+	\]
+	\item We introduce Cavial Model (Engle and Manganelli, 2004):
+	\[
+	V^{(\alpha)}_{i,t} = \beta_1 + \beta_2 V^{(\alpha)}_{i,t-1} + \beta_3 Y^+_{i,t-1} + \beta_4 Y^-_{i,t-1}
+	\]
+	This model is a GARCH one
+	\item Tail events are identified by the sequence of backtesting expections:
+	\[
+	Z_{i,t}^{(-)} = \mathds{1}_{\{Y_{1,t}< -v^{(\alpha)}_{1,t}\}}
+	\]
+\end{itemize}
+From empirical data we obtain:
+\begin{itemize}
+	\item $2007-2008$ financial crisis: strong increase in sovereign bond purchases which is not accompanied by a substantial rise in sovereign bond selling.
+	\item Eurozone crisis: contemporaneous presence of both generalized distress buying and distress selling of sovereign bonds.
+\end{itemize}
+\subsection{Econometric Measure of Flight-to-Quality}
+Each bond for each time-window is associated with a S\&P ratings from AAA to SD. We have different definition of goodness for bond:
+\begin{mydefinition}[Weak, Strong definition Bond]
+\begin{itemize}
+	\item  Weak definition:
+	\begin{align*}
+	& \text{Good = \{AAA,AA,A\}}\\
+	& \text{Bad = \{BBB, BB, B,...,SD\}}
+    \end{align*}
+    \item  Strong definition:
+    	\begin{align*}
+    	& \text{Good = \{AAA\}}\\
+    	& \text{Bad = \{AA, A,...,SD\}}
+    \end{align*}
+\end{itemize}
+\end{mydefinition}
+The quality indicator function is:
+\[
+\mathbf{1}_{i \in \text{Good}}(t) = \begin{cases}
+	1 & \text{Bond }i \text{is in the Good class in time-window }t\\
+	0 & \text{otherwise}
+\end{cases}
+\]
+Applying this to empirical data, we obtain the following results:
+\begin{itemize}
+\item A methodology suited for studying periods of financial distress: Granger-causality in tails of distributions imply focus on events of extraordinary nature. 
+\item Bipartite networks of risk spillover between major banks and government bonds. 
+\item Simple economic interpretation of centrality measures: indicators of distressed selling and distressed buying. 
+\item Eurozone crisis: major banks across the world chased top-quality bonds. Distressed selling on non-AAA rated bonds and distressed buying on AAA.
+\item  Out-of-sample forecast: early warning indicators of systemic risk. Turn on the red alarm when the information contained in the network of risk spillover improves the forecast of bond quality measures.
+\end{itemize}
+\subsection{VDAR and Granger causality in tail}
+Let $\{X_t\}_{t = 1,\ldots,T}$ and $\{Y_t\}_{t =1,\ldots,T}$ be the binary time series representing the occurrences of extreme events.
+\begin{mydefinition}[Bivariate VDAR(p)]
+\[
+\begin{cases}
+	X_t = V_t^1 ((1-J^1_t)X_{t-\tau_t^{11}} + J_t^1 Y_{t -\tau_t^{12}}) + (1-V^1_t)Z_t^1\\
+	Y_t = V^2_t(J^2_t X_{t - \tau_t^{21}} + (1-J^2_t)Y_{t -\tau_t^{22}}) + (1-V^2_t)Z_t^2
+\end{cases}
+\]
+where $X_t,Y_t \in \{0,1\} \ \forall t$, $V_t^i \sim \mathcal{B}(\nu_i)\in [0,1] \ \forall i =1,2, \ J_t^i \sim \mathcal{B}(\lambda_i)$ with $\lambda_1 \in [0,1] \ \forall i = 1,2$ and $\tau_t^{i,j} \sim \mathcal{M}(\gamma_{ij,1},\ldots, \gamma_{ij,p})$with $\sum_{s=1}^p \gamma_{ij,s}=1$. \\ The marginals $Z_t^1$ and $Z_t^2$ are also Bernoulli random variables with distribution $\mathcal{B}(\chi_1)$ and $\mathcal{B}(\chi_2)$, respectively with $\chi_1, \chi_2 \in [0,1]$
+\end{mydefinition}
+The model parameters can be estimated via Maximum Likelihood.
+Some comments about this model:
+\begin{itemize}
+\item The proposed test is bivariate and can give rise to spurious causalities 
+\item Moreover the Hong et al method is sensitive to autocorrelation in extreme events which may result in spurious detections (see below) 
+\item We propose a new parametric method to cope with this two problems.
+\item The idea is to use linear autoregressive models for discrete variables
+\end{itemize}
+n Statistical Inference, there exist many regularization methods that force the estimation algorithm to infer a less complex model by putting some parameters to zero, when not statistically significant. The two most widely used types of regularization are the
+so-called L1 (i.e. LASSO)and L2 regularization.
